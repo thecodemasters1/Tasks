@@ -74,8 +74,15 @@ Node * lremove(List * list, Node * node)
 {
 	if (node == list->head)
 	{
-		list->head = node->next;
-		list->head->prev = NULL;
+		if (node->next == NULL)
+		{
+			list->head = NULL;
+		}
+		else
+		{
+			list->head = node->next;
+			list->head->prev = NULL;
+		}
 	}
 	else if (node == list->last)
 	{
@@ -124,7 +131,10 @@ Node * getPrev(Node * node)
 /*Get value of an item in a list. */
 double getVal(Node * node)
 {
-	return node->val;
+	if (node != NULL)
+		return node->val;
+	printf("Error: can not return value of NULL node, returned 0 instead. ");
+	return 0;
 }
 
 /*Get length of a list */
