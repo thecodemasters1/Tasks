@@ -20,16 +20,17 @@ List generateList()
 /*Add new item to the end of the list. returns a pointer to the newly added item */
 Node * ladd(List * list, double val)
 {
+        // T: check list pointer is not null
 	if (list->head == NULL)
 	{
-		list->head = (Node *)malloc(sizeof(Node));
+		list->head = (Node *)malloc(sizeof(Node)); // T: On failure malloc returns null - handle it
 		list->head->prev = NULL;
 		list->head->val = val;
 		list->last = list->head;
 	}
 	else
 	{
-		list->last->next = (Node *)malloc(sizeof(Node));
+		list->last->next = (Node *)malloc(sizeof(Node)); // T: On failure malloc returns null - handle it
 		list->last->next->prev = list->last;
 		list->last->next->val = val;
 		list->last = list->last->next;
@@ -43,18 +44,19 @@ Node * ladd(List * list, double val)
 /*Insert an item to the list before the specific node passed to the function. returns a pointer to the newly added item */
 Node * linsert(List * list, Node * node, double val)
 {
+        // T: check list pointer is not null
 	if (node == NULL)
 	{
 		return ladd(list, val);
 	}
-	Node * nitem = (Node *)malloc(sizeof(Node));
+	Node * nitem = (Node *)malloc(sizeof(Node)); // T: On failure malloc returns null - handle it
 	if (node == list->head)
 	{
 		nitem->val = val;
 		nitem->prev = NULL;
 		nitem->next = list->head;
 		list->head = nitem;
-		list->head->next->prev = list->head;
+		list->head->next->prev = list->head; 
 	}
 	else
 	{
@@ -72,6 +74,7 @@ Node * linsert(List * list, Node * node, double val)
 /*Remove an item from the list, given a pointer to it. */
 Node * lremove(List * list, Node * node)
 {
+        // T: check list pointer is not null
 	if (node == list->head)
 	{
 		if (node->next == NULL)
@@ -97,7 +100,7 @@ Node * lremove(List * list, Node * node)
 	list->sum -= node->val;
 	free(node);
 	--list->length;
-	return node->next;
+	return node->next; // T: bad use of node after free
 }
 
 /*Get the head of a list (pointer). */
@@ -133,7 +136,7 @@ double getVal(Node * node)
 {
 	if (node != NULL)
 		return node->val;
-	printf("Error: can not return value of NULL node, returned 0 instead. ");
+	printf("Error: can not return value of NULL node, returned 0 instead. "); // T: printf without endline? It won`t flushed to stdout
 	return 0;
 }
 
@@ -152,6 +155,7 @@ double getAvg(List list)
 /*Clear a list */
 void terminateList(List * list)
 {
+        // T: check list pointer is not null
 	Node * cur_node = list->head;
 	while (cur_node != NULL)
 	{
@@ -181,16 +185,17 @@ Queue generateQueue()
 /*Enqueue an item to the end of the queue */
 void enqueue(Queue * queue, double val)
 {
+        // T: check queue pointer is not null
 	if (queue->head == NULL)
 	{
-		queue->head = (Node *)malloc(sizeof(Node));
+		queue->head = (Node *)malloc(sizeof(Node)); // T: On failure malloc returns null - handle it
 		queue->head->prev = NULL;
 		queue->head->val = val;
 		queue->last = queue->head;
 	}
 	else
 	{
-		queue->last->next = (Node *)malloc(sizeof(Node));
+		queue->last->next = (Node *)malloc(sizeof(Node)); // T: On failure malloc returns null - handle it
 		queue->last->next->prev = queue->last;
 		queue->last->next->val = val;
 		queue->last = queue->last->next;
@@ -202,8 +207,9 @@ void enqueue(Queue * queue, double val)
 /*Dequeue the item at the head of the queue and return its value */
 double dequeue(Queue * queue)
 {
+        // T: check queue pointer is not null
 	Node * to_remove = queue->head;
-	double val = to_remove->val;
+	double val = to_remove->val; // T: what if the queue is empty?
 	queue->head = queue->head->next;
 	if (queue->head != NULL)
 	{
@@ -212,8 +218,9 @@ double dequeue(Queue * queue)
 	}
 	else
 	{
-		free(to_remove);
+		free(to_remove); // T: both free calls fre the same memory, y not write it only one?
 	}
+        // T: what if there was only one node? what about queue->last?
 	--queue->length;
 	return val;
 }
@@ -233,6 +240,7 @@ double peek(Queue queue)
 /*Clear a queue */
 void terminateQueue(Queue * queue)
 {
+        // T: check queue pointer is not null
 	while (queue->length != 0)
 	{
 		dequeue(queue);
