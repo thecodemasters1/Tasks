@@ -37,8 +37,8 @@ Node * getLast(List list);
 Node * getNext(Node * node);
 Node * getPrev(Node * node);
 double getVal(Node * node);
-unsigned int getLength(List list);
-double getAvg(List list);
+unsigned int getLength(List list); // T: passed by value? why not by pointer?
+double getAvg(List list);          //    copy atleast 12 bytes instead of 4 bytes
 void terminateList(List * list);
 
 /*******Queue Functions*******/
@@ -46,8 +46,8 @@ void terminateList(List * list);
 Queue generateQueue();
 void enqueue(Queue * queue, double val);
 double dequeue(Queue * queue);
-unsigned int qGetLength(Queue queue);
-double peek(Queue queue);
+unsigned int qGetLength(Queue queue); // T: passed by value? why not by pointer?
+double peek(Queue queue);             //    copy atleast 12 bytes instead of 4 bytes
 void terminateQueue(Queue * queue);
 
 #endif
