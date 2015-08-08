@@ -13,11 +13,11 @@ struct _board
 typedef struct _board Board;
 
 Board initializeBoard(int rows, int cols);
-void ClearBoard(Board board);
-void freeBoard(Board board);
-void UpdateBoard(Board board);
-void printBoard(Board board);
-void changeCell(Board board, int row, int col);
-int countLiveCells(Board board);
+void ClearBoard(Board board); // T: why not send parameter by pointer?
+void freeBoard(Board board); // T: why not send parameter by pointer?
+void UpdateBoard(Board board); // T: why not send parameter by pointer?
+void printBoard(Board board); // T: why not send parameter by pointer?
+void changeCell(Board board, int row, int col); // T: why not send parameter by pointer?
+int countLiveCells(Board board); // T: why not send parameter by pointer?
 
 #endif
