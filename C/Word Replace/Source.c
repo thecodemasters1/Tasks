@@ -30,7 +30,7 @@ int main(int argc, char * argv[])
 
 	unsigned int dictFileSize;
 	unsigned int textFileSize;
-	int returnValue = SUCCESS;
+	int returnValue = SUCCESS; // T: no use for returnValue
 
 	char * fileText;
 	char * dictText;
@@ -44,9 +44,9 @@ int main(int argc, char * argv[])
 	}
 
 	/* Open dictionary file in order to get content */
-	if (0 != fopen_s(&dictionary, argv[1], "r"))
+	if (0 != fopen_s(&dictionary, argv[1], "r")) // T: nice
 	{
-		printf("Error %d: Can't open dictionary file. Check file's location\n", CANT_OPEN_DICTIONARY_FILE);
+		printf("Error %d: Can't open dictionary file. Check file's location\n", CANT_OPEN_DICTIONARY_FILE); // T: there are more reasons for failure of fopen
 		return CANT_OPEN_DICTIONARY_FILE;
 	}
 
@@ -71,7 +71,7 @@ int main(int argc, char * argv[])
 	}
 	while (textFile_index < textFileSize && fileText[textFile_index] != '\0')
 	{
-		printf("Working... %d%% completed.\n", (int)(((double)textFile_index / textFileSize) * 100));
+		printf("Working... %d%% completed.\n", (int)(((double)textFile_index / textFileSize) * 100)); // T: nice
 		unsigned int Number_Of_Bytes = 0;
 		unsigned int Size_Of_Synonym = 0;
 		char * curr_word = getWord(fileText, textFile_index, textFileSize, &Number_Of_Bytes);
@@ -80,17 +80,17 @@ int main(int argc, char * argv[])
 		{
 			if (Number_Of_Bytes != 0)
 			{
-				fwrite(curr_word, sizeof(char), Number_Of_Bytes, text);
+				fwrite(curr_word, sizeof(char), Number_Of_Bytes, text); // T: check failure for fwrite
 			}
 			else
 			{
-				fwrite(&fileText[textFile_index], sizeof(char), sizeof(char), text);
+				fwrite(&fileText[textFile_index], sizeof(char), sizeof(char), text); // T: check failure for fwrite
 			}
 		}
 		else
 		{
-			fwrite(synonym, sizeof(char), Size_Of_Synonym, text);
-		}
+			fwrite(synonym, sizeof(char), Size_Of_Synonym, text); // T: check failure for fwrite
+		} // T: free synonym memory
 
 		free(curr_word);
 		textFile_index += max(Number_Of_Bytes, 1);
@@ -133,8 +133,8 @@ int main(int argc, char * argv[])
 char * stringMalloc(unsigned int size)
 {
 	char * string;
-	string = (char *)malloc(size+1);
-	string[size] = '\0';
+	string = (char *)malloc(size+1); 
+	string[size] = '\0'; // T: check string is not null
 	return string;
 }
 
@@ -145,8 +145,8 @@ char * stringMalloc(unsigned int size)
 unsigned int getFileSize(FILE * f)
 {
 	unsigned int ret_val;
-	fseek(f, 0L, SEEK_END);
-	ret_val = ftell(f);
+	fseek(f, 0L, SEEK_END); // T: Check f is not null pointer also check failure of fseek
+	ret_val = ftell(f); // T: check failure of ftell
 	fseek(f, 0L, SEEK_SET);
 
 	return ret_val;
@@ -161,17 +161,17 @@ char * getFileContent(FILE * f, unsigned int * fsize_p)
 {
 	int resize_content = 0;
 	char * ret_val;
-	*fsize_p = getFileSize(f);
-	ret_val = stringMalloc(*fsize_p);
-	fread(ret_val, sizeof(char), *fsize_p, f);
-	for (unsigned int i = 0; i < *fsize_p; i++)
+	*fsize_p = getFileSize(f); // T: check parameters are not null pointers
+	ret_val = stringMalloc(*fsize_p); // T: what happend on stringMalloc failure?
+	fread(ret_val, sizeof(char), *fsize_p, f); // T: check failure of fread, why you read the file as binary and not as text?
+	for (unsigned int i = 0; i < *fsize_p; i++) // T: what will happen if *fsize is -1 ? how this vulnerability called? how you can fix it?
 	{
 		if (ret_val[i] == '\n')
 		{
 			resize_content++;
 		}
 	}
-	*fsize_p -= resize_content;
+	*fsize_p -= resize_content; // T: why you sub every \n from the string size?
 	ret_val[*fsize_p] = '\0';
 
 	return ret_val;
@@ -194,14 +194,14 @@ char * getWord(char * content, unsigned int start_index, unsigned int contentSiz
 		++(*wordSize_p);
 	}
 
-	ret_val = stringMalloc(*wordSize_p);
+	ret_val = stringMalloc(*wordSize_p); // T: chaeck ret_val is not null
 
 	for (unsigned int i = 0; i < *wordSize_p; ++i)
 	{
 		ret_val[i] = content[start_index + i];
 	}
 
-	return ret_val;
+	return ret_val; // T: you count on stringMalloc to put \0 at the end of string - a bit weird.. 
 }
 
 /* char * findSynonym(char * word, char * dictionary, unsigned int dictSize, unsigned int * synonymdSize_p) summary
@@ -215,18 +215,18 @@ char * findSynonym(char * word, char * dictionary, unsigned int dictSize, unsign
 {
 	char * synonym = NULL;
 	unsigned int dictFile_index = 0;
-	while (dictFile_index < dictSize && dictionary[dictFile_index] != '\0')
+	while (dictFile_index < dictSize && dictionary[dictFile_index] != '\0') // T: check parameters for null pointers
 	{
 		unsigned int Number_Of_Bytes = 0;
 		char * curr_word = getWord(dictionary, dictFile_index, dictSize, &Number_Of_Bytes);
-		if (strcmp(word, curr_word) == 0)
+		if (strcmp(word, curr_word) == 0) // T: use strncmp, now you count on word to be null terminated
 		{
 			dictFile_index = getLineStart(dictionary, dictFile_index);
 			synonym = getWord(dictionary, dictFile_index, dictSize, synonymSize_p);
-			while (strcmp(curr_word, synonym) == 0)
+			while (strcmp(curr_word, synonym) == 0) // T: if the dict file has bad format you will get to EOF
 			{
 				dictFile_index += *synonymSize_p+1;
-				synonym = getWord(dictionary, dictFile_index, dictSize, synonymSize_p);
+				synonym = getWord(dictionary, dictFile_index, dictSize, synonymSize_p); // T: free synonym memory!
 			}
 			break;
 		}
@@ -258,13 +258,13 @@ unsigned int getLineStart(char * content, unsigned int currIndex)
 * param: char * str1 | first string to compare
 * param: char * str2 | second string to compare
 */
-int insensitiveStrCmp(char * str1, char * str2)
+int insensitiveStrCmp(char * str1, char * str2) // T: you didnt use this function at all
 {
 	int ret_val;
 	char * _str1;
 	char * _str2;
-	_str1 = stringMalloc(strlen(str1));
-	_str2 = stringMalloc(strlen(str2));
+	_str1 = stringMalloc(strlen(str1)); // T: check parameters are not null pointers and check for stringMalloc failure
+	_str2 = stringMalloc(strlen(str2)); // T: dont assume str1 and str2 are null terminated
 	strcpy(_str1, str1);
 	strcpy(_str2, str2);
 	ret_val = strcmp(stoLower(_str1), stoLower(_str2));
@@ -280,7 +280,7 @@ int insensitiveStrCmp(char * str1, char * str2)
 char * stoLower(char * string)
 {
 	int i = 0;
-	while (string[i] != '\0')
+	while (string[i] != '\0') // T: check string is not null pointer, dont assume string is null terminated
 	{
 		string[i] = tolower(string[i]);
 		i++;
