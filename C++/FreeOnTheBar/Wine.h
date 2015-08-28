@@ -8,6 +8,7 @@ and the new getName function, with both the name and year of the wine */
 class Wine : public Drink
 {
 public:
+	// T: put here ctor
 	//Inline virtual base function, return the name of the drink + year;
 	virtual string getName() { return Name + "(Year " + to_string(Year) + ")"; }
 protected:
