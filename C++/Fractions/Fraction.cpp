@@ -25,7 +25,7 @@ int Fraction::getDenominator() const
 //Get a number and Set the denominator
 void Fraction::setDenominator(int denominator)
 {
-	Denominator = denominator;
+	Denominator = denominator; // T: check denominator is not 0, hanndle negative num
 }
 
 //Reduce the fraction to the smallest value possible.
