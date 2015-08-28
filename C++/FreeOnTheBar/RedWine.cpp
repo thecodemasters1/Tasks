@@ -5,7 +5,7 @@
 using namespace std;
 
 //C'tor - get a string with the name of the red wine and its year. Set the name and year with the passed values.
-RedWine::RedWine(string name, int year)
+RedWine::RedWine(string name, int year) // T: use Wine ctor
 {
 	Name = name;
 	Year = year;
