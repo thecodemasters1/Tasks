@@ -10,7 +10,10 @@ public:
 	//Empty C'tor, set an empty Fraction.
 	Fraction() {};
 	//C'tor, Get a numerator and denominator and set them to the fraction, if denominator not passed, set it as 1;
-	Fraction(int numerator, int denominator = 1) : Numerator(numerator), Denominator(denominator) {}
+	Fraction(int numerator, int denominator = 1) : Numerator(numerator), Denominator(denominator) {} 
+	// T: 	1) check denominator is not zero 
+	// 	2) handle negative -> put the minus at the numerator
+	//	3) reduce fraction
 	//D'tor
 	~Fraction() {}
 	//Return the numerator
@@ -90,7 +93,7 @@ public:
 	inline friend istream& operator>> (istream& is, Fraction& f)
 	{
 		char slash;
-		is >> f.Numerator >> slash >> f.Denominator;
+		is >> f.Numerator >> slash >> f.Denominator; // T: what if denominator is zero? or negative?
 		return is;
 	}
 
